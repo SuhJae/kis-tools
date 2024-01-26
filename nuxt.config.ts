@@ -1,7 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/color-mode", "@vueuse/nuxt", "nuxt-icon"],
+
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
+    "@vueuse/nuxt",
+    "nuxt-icon",
+    "@pinia/nuxt",
+  ],
 
   tailwindcss: {
     exposeConfig: true,
@@ -26,6 +33,16 @@ export default defineNuxtConfig({
         name: "VariantProps",
         type: true,
       },
+      { from: "vue-sonner", name: "toast", as: "useSonner" },
     ],
+  },
+
+  build: {
+    transpile: ["vue-sonner"],
+  },
+
+  routeRules: {
+    // disable SSR for /calculator route
+    "/calculator": { ssr: false },
   },
 });

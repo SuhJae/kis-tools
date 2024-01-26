@@ -1,5 +1,8 @@
 <template>
   <Navigation />
 
-  <NuxtPage />
+  <div>
+    <NuxtPage />
+    <UiVueSonner />
+  </div>
 </template>
