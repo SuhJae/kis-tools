@@ -9,7 +9,7 @@
           A simple GPA calculator for your needs.
         </p>
         <div class="flex flex-col justify-center gap-4 min-[400px]:flex-row">
-          <UiButton variant="outline">Learn More</UiButton>
+          <!-- <UiButton variant="outline">Learn More</UiButton> -->
           <UiButton>
             <NuxtLink to="/calculator">
               Get Started
@@ -27,19 +27,16 @@
       <div class="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
         <img
           alt="Image"
-          class="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center md:order-last md:w-full"
-          height="310"
-          src="~/assets/images/hero-image.jpg"
-          width="550"
+          class="mx-auto rounded-xl md:order-last md:w-full"
+          src="~/assets/images/hero-image.png"
         />
         <div class="flex flex-col justify-center space-y-4">
           <div class="space-y-2">
             <div class="inline-block rounded-lg py-1 text-sm">GPA Calculator</div>
             <h2 class="text-3xl font-bold tracking-tighter md:text-5xl">Simple and Intuitive</h2>
             <p class="max-w-[600px] text-muted-foreground lg:text-xl/relaxed xl:text-xl/relaxed">
-              The platform for rapid progress. Let your team focus on shipping features instead of
-              managing infrastructure with automated CI/CD, built-in testing, and integrated
-              collaboration.
+              A simple and intuitive GPA calculator for your needs. Calculate your GPA based on your
+              grades. The data is stored locally on your device, and never shared with anyone.
             </p>
           </div>
         </div>

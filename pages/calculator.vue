@@ -30,7 +30,7 @@
                 </UiAlertDialogContent>
               </UiAlertDialog>
 
-              <UiButton variant="outline" size="icon" @click="addSubject"
+              <UiButton variant="outline" size="icon" @click="gpaStore.addCourse()"
                 ><Icon class="h-4 w-4" name="lucide:plus"
               /></UiButton>
             </div>
@@ -116,13 +116,13 @@
 </style>
 
 <script lang="ts" setup>
-
   import { useGpaStoreWithPersistence } from "@/stores/gpa";
 
   const gpaStore = useGpaStoreWithPersistence();
   const grades = gpaStore.grades;
 
-  let gradesBackup: { subject: string; percentGrade: number; credits: number; isAP: boolean; }[] = [];
+  let gradesBackup: { subject: string; percentGrade: number; credits: number; isAP: boolean }[] =
+    [];
   const model = ref(false);
 
   const weightedGPA = computed(() => {
@@ -138,7 +138,7 @@
     let totalCredits = 0;
 
     // Ensure that grades is defined and is an array
-    if (Array.isArray(grades)) {
+    if (Array.isArray(grades) && grades.length > 0) {
       grades.forEach((grade) => {
         let gpa = Number(getGPA(grade.percentGrade, isWeighted && grade.isAP));
 
@@ -149,7 +149,6 @@
       return totalCredits > 0 ? gpaRounding(totalGPA / totalCredits) : 0;
     } else {
       // Handle case where grades is not an array
-      console.error("Grades is not an array:", grades);
       return 0;
     }
   };
@@ -171,16 +170,16 @@
   ];
 
   const resetTable = () => {
-    gradesBackup = grades;
-    gpaStore.clear();
+    console.log("reset");
+    gradesBackup = gpaStore.clear();
 
     useSonner("", {
       description: "Table cleared",
-      duration: 8000,
+      duration: 6000,
       action: {
         label: "undo",
         onClick() {
-          gpaStore.grades = gradesBackup;
+          gpaStore.restore(gradesBackup);
           useSonner.success("", {
             description: "Table restored",
             duration: 1500,
@@ -195,11 +194,11 @@
 
     useSonner("", {
       description: "Row deleted",
-      duration: 8000,
+      duration: 4000,
       action: {
         label: "undo",
         onClick() {
-          gpaStore.restoreCourse(dropeedRow[0], dropeedRow[1]);
+          gpaStore.restoreCourse(dropeedRow);
           useSonner.success("", {
             description: "Row restored",
             duration: 1500,
@@ -208,8 +207,6 @@
       },
     });
   };
-
-
 
   const checkPercentGrade = (percentGrade: number) => {
     if (percentGrade > 100) {
@@ -240,7 +237,7 @@
         }
       }
     }
-    return "N/A"
+    return "0";
   };
 
   const gpaRounding = (gpa: number, decimalPlaces: number = 2) => {
@@ -251,4 +248,3 @@
     }
   };
 </script>
-

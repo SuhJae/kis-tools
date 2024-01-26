@@ -3,6 +3,6 @@
 
   <div>
     <NuxtPage />
-    <UiVueSonner />
+    <UiVueSonner position="top-center"/>
   </div>
 </template>
