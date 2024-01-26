@@ -1,19 +1,42 @@
 <template>
   <div class="flex flex-col items-center justify-center p-2 pt-8 md:p-16">
-    <UiCard
-      class="w-full max-w-3xl"
-      title="GPA Calculator"
-      description="Calculate your GPA based on your grades."
-    >
+    <UiCard class="w-full max-w-3xl">
       <template #content>
-        <UiCardContent class="-mt-14">
-          <div class="flex justify-end pb-2 align-middle">
-            <UiButton variant="outline" size="icon"
-              ><Icon class="h-4 w-4" name="lucide:plus" @click="addSubject"
-            /></UiButton>
+        <UiCardContent>
+          <div class="flex justify-between pb-4">
+            <div class="flex flex-col">
+              <p class="mb-2 text-xl font-bold">GPA Calculator</p>
+              <p class="text-sm text-muted-foreground">Calculate your GPA based on your grades.</p>
+            </div>
+
+            <div class="z flex justify-end space-x-2 pb-2 align-middle">
+              <UiAlertDialog v-model:open="model">
+                <UiAlertDialogTrigger as-child>
+                  <UiButton variant="destructive" size="icon"
+                    ><Icon class="h-4 w-4" name="lucide:trash"
+                  /></UiButton>
+                </UiAlertDialogTrigger>
+                <UiAlertDialogContent>
+                  <UiAlertDialogHeader>
+                    <UiAlertDialogTitle>Are you absolutely sure?</UiAlertDialogTitle>
+                    <UiAlertDialogDescription>
+                      This will reset all the entries in the table.
+                    </UiAlertDialogDescription>
+                  </UiAlertDialogHeader>
+                  <UiAlertDialogFooter>
+                    <UiAlertDialogCancel />
+                    <UiAlertDialogAction @click="resetTable" variant="destructive" />
+                  </UiAlertDialogFooter>
+                </UiAlertDialogContent>
+              </UiAlertDialog>
+
+              <UiButton variant="outline" size="icon" @click="addSubject"
+                ><Icon class="h-4 w-4" name="lucide:plus"
+              /></UiButton>
+            </div>
           </div>
 
-          <div class="overflow-x-auto rounded-md pb-4">
+          <div class="overflow-x-auto rounded-md">
             <UiTable>
               <UiTableHeader>
                 <UiTableRow>
@@ -22,6 +45,7 @@
                   <UiTableHead>Credits</UiTableHead>
                   <UiTableHead>AP Course</UiTableHead>
                   <UiTableHead class="text-right">GPA</UiTableHead>
+                  <UiTableHead class="text-right"></UiTableHead>
                 </UiTableRow>
               </UiTableHeader>
               <UiTableBody class="last:border-b">
@@ -50,14 +74,15 @@
                       />
                     </UiTableCell>
                     <UiTableCell>
-                      <UiSwitch
-                        :checked="grade.isAP"
-                        @update:checked="grade.isAP = $event"
-                        id="`ap-${i}`"
-                      />
+                      <UiSwitch :checked="grade.isAP" @update:checked="grade.isAP = $event" />
                     </UiTableCell>
                     <UiTableCell class="w-16 text-right">
                       {{ getGPA(grade.percentGrade, grade.isAP) }}
+                    </UiTableCell>
+                    <UiTableCell>
+                      <UiButton variant="ghost" size="icon" @click="dropRow(i)"
+                        ><Icon class="h-4 w-4" name="lucide:x"
+                      /></UiButton>
                     </UiTableCell>
                   </UiTableRow>
                 </template>
@@ -65,6 +90,17 @@
             </UiTable>
           </div>
         </UiCardContent>
+
+        <div class="flex justify-center p-4 pt-0">
+          <div class="flex flex-col items-center">
+            <p class="text-muted-foreground">
+              Weighted GPA: <span class="font-bold text-primary"> {{ weightedGPA }}</span>
+            </p>
+            <p class="text-muted-foreground">
+              Unweighted GPA: <span class="font-bold text-primary"> {{ unweightedGPA }}</span>
+            </p>
+          </div>
+        </div>
       </template>
     </UiCard>
   </div>
@@ -80,14 +116,43 @@
 </style>
 
 <script lang="ts" setup>
-  const grades = ref([
-    {
-      subject: "",
-      percentGrade: 100,
-      credits: 1,
-      isAP: false,
-    },
-  ]);
+
+  import { useGpaStoreWithPersistence } from "@/stores/gpa";
+
+  const gpaStore = useGpaStoreWithPersistence();
+  const grades = gpaStore.grades;
+
+  let gradesBackup: { subject: string; percentGrade: number; credits: number; isAP: boolean; }[] = [];
+  const model = ref(false);
+
+  const weightedGPA = computed(() => {
+    return computeGPA(true);
+  });
+
+  const unweightedGPA = computed(() => {
+    return computeGPA(false);
+  });
+
+  const computeGPA = (isWeighted: boolean) => {
+    let totalGPA = 0;
+    let totalCredits = 0;
+
+    // Ensure that grades is defined and is an array
+    if (Array.isArray(grades)) {
+      grades.forEach((grade) => {
+        let gpa = Number(getGPA(grade.percentGrade, isWeighted && grade.isAP));
+
+        totalGPA = Number(totalGPA) + gpa * grade.credits;
+        totalCredits += grade.credits;
+      });
+
+      return totalCredits > 0 ? gpaRounding(totalGPA / totalCredits) : 0;
+    } else {
+      // Handle case where grades is not an array
+      console.error("Grades is not an array:", grades);
+      return 0;
+    }
+  };
 
   const gradeThresholds = [
     { threshold: 97, letterGrade: "A+", gpa: 4.0 },
@@ -105,14 +170,46 @@
     { threshold: 50, letterGrade: "F", gpa: 0.0 },
   ];
 
-  const addSubject = () => {
-    grades.value.push({
-      subject: "",
-      percentGrade: 100,
-      credits: 1,
-      isAP: false,
+  const resetTable = () => {
+    gradesBackup = grades;
+    gpaStore.clear();
+
+    useSonner("", {
+      description: "Table cleared",
+      duration: 8000,
+      action: {
+        label: "undo",
+        onClick() {
+          gpaStore.grades = gradesBackup;
+          useSonner.success("", {
+            description: "Table restored",
+            duration: 1500,
+          });
+        },
+      },
     });
   };
+
+  const dropRow = (index: number) => {
+    let dropeedRow = gpaStore.removeCourse(index);
+
+    useSonner("", {
+      description: "Row deleted",
+      duration: 8000,
+      action: {
+        label: "undo",
+        onClick() {
+          gpaStore.restoreCourse(dropeedRow[0], dropeedRow[1]);
+          useSonner.success("", {
+            description: "Row restored",
+            duration: 1500,
+          });
+        },
+      },
+    });
+  };
+
+
 
   const checkPercentGrade = (percentGrade: number) => {
     if (percentGrade > 100) {
@@ -143,7 +240,7 @@
         }
       }
     }
-    return 0;
+    return "N/A"
   };
 
   const gpaRounding = (gpa: number, decimalPlaces: number = 2) => {
@@ -154,3 +251,4 @@
     }
   };
 </script>
+
