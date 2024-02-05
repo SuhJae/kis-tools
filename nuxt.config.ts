@@ -44,5 +44,6 @@ export default defineNuxtConfig({
   routeRules: {
     // disable SSR for /calculator route
     "/calculator": { ssr: false },
+    "/" : { ssr: false }
   },
 });
