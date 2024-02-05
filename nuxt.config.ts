@@ -2,10 +2,10 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  target: 'static',
+  target: "static",
 
   router: {
-    base: '/kis-tools/'
+    base: "/kis-tools/",
   },
 
   modules: [

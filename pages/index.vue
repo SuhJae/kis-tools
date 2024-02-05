@@ -11,9 +11,7 @@
         <div class="flex flex-col justify-center gap-4 min-[400px]:flex-row">
           <!-- <UiButton variant="outline">Learn More</UiButton> -->
           <UiButton>
-            <NuxtLink to="/calculator">
-              Get Started
-            </NuxtLink>
+            <NuxtLink to="/calculator"> Get Started </NuxtLink>
           </UiButton>
         </div>
       </div>
