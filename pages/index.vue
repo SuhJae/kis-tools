@@ -43,4 +43,11 @@
   </section>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  useSeoMeta({
+    title: "KIS Tools",
+    ogTitle: "KIS Tools",
+    description: "A collection of tools for students at KIS International School.",
+    ogDescription: "A collection of tools for students at KIS International School.",
+  });
+</script>

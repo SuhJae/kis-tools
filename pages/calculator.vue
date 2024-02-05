@@ -118,6 +118,13 @@
 <script lang="ts" setup>
   import { useGpaStoreWithPersistence } from "@/stores/gpa";
 
+  useSeoMeta({
+    title: "GPA Calculator",
+    ogTitle: "GPA Calculator",
+    description: "A simple GPA calculator for your needs.",
+    ogDescription: "A simple GPA calculator for your needs.",
+  });
+
   const gpaStore = useGpaStoreWithPersistence();
   const grades = gpaStore.grades;
 

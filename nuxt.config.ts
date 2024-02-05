@@ -2,12 +2,6 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  target: "static",
-
-  router: {
-    base: "/kis-tools/",
-  },
-
   modules: [
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
