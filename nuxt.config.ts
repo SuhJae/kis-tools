@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  target: 'static',
+
+  router: {
+    base: '/kis-tools/'
+  },
+
   modules: [
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
@@ -44,6 +50,5 @@ export default defineNuxtConfig({
   routeRules: {
     // disable SSR for /calculator route
     "/calculator": { ssr: false },
-    "/" : { ssr: false }
   },
 });
